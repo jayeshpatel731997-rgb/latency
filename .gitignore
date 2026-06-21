@@ -1,0 +1,20 @@
+# Dependencies and build output
+**/node_modules/
+**/dist/
+**/coverage/
+**/*.tsbuildinfo
+*.vsix
+
+# Environment files and local secrets
+**/.env
+**/.env.*
+!**/.env.example
+
+# Logs and local tooling
+*.log
+.agents/
+skills-lock.json
+
+# OS metadata
+.DS_Store
+Thumbs.db
