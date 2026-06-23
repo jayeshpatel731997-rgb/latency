@@ -67,7 +67,7 @@ button:disabled {
   font-weight: 700;
 }
 
-.password-control {
+.account-control {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -79,9 +79,18 @@ button:disabled {
   background: #ffffff;
 }
 
-.password-control strong {
-  margin-left: 12px;
+.account-control > span {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-control button {
+  padding: 0;
+  border: 0;
   color: #155eef;
+  background: transparent;
   font-weight: 700;
 }
 
@@ -181,6 +190,82 @@ main {
 .fund-controls {
   display: grid;
   gap: 10px;
+}
+
+.staging-note {
+  padding: 18px;
+  border: 1px solid #f2cc60;
+  border-radius: 7px;
+  color: #714b00;
+  background: #fffbeb;
+}
+
+.staging-note p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.auth-main {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+  background: #f6f8fc;
+}
+
+.auth-card {
+  width: min(460px, 100%);
+  padding: 38px;
+  border: 1px solid #cbd3e1;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 20px 50px rgb(15 35 75 / 10%);
+}
+
+.auth-eyebrow {
+  margin: 26px 0 6px;
+  color: #155eef;
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.auth-card h1 {
+  margin: 0;
+  font-size: 30px;
+  letter-spacing: -0.04em;
+}
+
+.auth-description {
+  margin: 10px 0 24px;
+  color: #65718a;
+  line-height: 1.5;
+}
+
+.auth-card form {
+  gap: 12px;
+}
+
+.auth-card .primary-button {
+  margin-top: 8px;
+}
+
+.auth-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.auth-links button {
+  padding: 0;
+  border: 0;
+  color: #155eef;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 650;
 }
 
 .form-panel {
@@ -450,17 +535,17 @@ td a {
     font-size: 13px;
   }
 
-  .password-control {
+  .account-control {
     min-height: 40px;
     padding: 0 12px;
   }
 
-  .password-control > span:nth-child(2) {
+  .account-control > span {
     display: none;
   }
 
-  .password-control strong {
-    margin-left: 0;
+  .auth-card {
+    padding: 28px 22px;
   }
 
   main {
