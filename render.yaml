@@ -1,0 +1,68 @@
+previews:
+  generation: none
+
+services:
+  - type: web
+    name: latency-api-staging
+    runtime: node
+    plan: free
+    region: ohio
+    branch: main
+    autoDeploy: true
+    buildCommand: cd backend && npm ci && npm run build
+    startCommand: cd backend && npm start
+    healthCheckPath: /api/health
+    buildFilter:
+      paths:
+        - backend/**
+        - render.yaml
+    envVars:
+      - key: APP_ENV
+        value: staging
+      - key: ALLOWED_ORIGINS
+        value: https://latency-portal-staging.onrender.com
+      - key: STAGING_INITIAL_WALLET_PAISE
+        value: "10000"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+
+  - type: web
+    name: latency-portal-staging
+    runtime: static
+    plan: free
+    branch: main
+    autoDeploy: true
+    buildCommand: cd portal && npm ci && npm run build
+    staticPublishPath: portal/dist
+    buildFilter:
+      paths:
+        - portal/**
+        - render.yaml
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://latency-api-staging.onrender.com
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=()

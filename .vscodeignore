@@ -1,8 +1,16 @@
 .vscode/**
+.github/**
+.agents/**
 .gitignore
+skills-lock.json
 src/**
 backend/**
+portal/**
+docs/**
 tsconfig.json
+render.yaml
+package-lock.json
+**/.env*
 **/*.map
 **/*.ts
 node_modules/**

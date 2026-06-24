@@ -90,22 +90,18 @@ function getOrCreateOverlayPanel(): vscode.WebviewPanel {
 }
 
 export const claudeAdapter = {
-  activate(context: vscode.ExtensionContext): void {
-    console.log("=== claudeAdapter: all installed extensions ===");
-    for (const ext of vscode.extensions.all) {
-      console.log("extension:", ext.id);
-    }
-    console.log("===============================================");
-
+  activate(
+    context: vscode.ExtensionContext,
+    isEnabled: () => boolean,
+  ): void {
     const poll = setInterval(() => {
       const isActive = findClaudeTab();
 
-      if (isActive && !wasClaudeActive) {
+      if (isEnabled() && isActive && !wasClaudeActive) {
         const now = Date.now();
         if (now - lastFiredAt >= COOLDOWN_MS) {
           lastFiredAt = now;
           const panel = getOrCreateOverlayPanel();
-          console.log("waitStart fired");
           waitStartEmitter.fire(panel);
         }
       }

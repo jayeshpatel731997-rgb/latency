@@ -1,27 +1,84 @@
 {
   "name": "latency",
   "displayName": "Latency",
-  "description": "A VS Code extension for latency tooling.",
+  "description": "Opt-in sponsored wait screens for AI-assisted development.",
   "version": "0.0.1",
   "publisher": "latency-dev",
   "engines": {
     "vscode": "^1.90.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Machine Learning"
   ],
+  "keywords": [
+    "developer tools",
+    "ai",
+    "sponsored",
+    "rewards"
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jayeshpatel731997-rgb/latency.git"
+  },
+  "homepage": "https://github.com/jayeshpatel731997-rgb/latency#readme",
+  "bugs": {
+    "url": "https://github.com/jayeshpatel731997-rgb/latency/issues"
+  },
   "activationEvents": [
     "onStartupFinished"
   ],
   "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "latency.enable",
+        "title": "Latency: Enable Sponsored Wait Screens"
+      },
+      {
+        "command": "latency.refreshWallet",
+        "title": "Latency: Refresh Wallet"
+      },
+      {
+        "command": "latency.openDashboard",
+        "title": "Latency: Open Dashboard"
+      }
+    ],
+    "configuration": {
+      "title": "Latency",
+      "properties": {
+        "latency.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show opt-in sponsored content while supported AI tools are waiting."
+        },
+        "latency.apiBaseUrl": {
+          "type": "string",
+          "default": "http://localhost:3001",
+          "description": "Latency API base URL."
+        },
+        "latency.dashboardUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Latency web dashboard URL."
+        }
+      }
+    }
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
+    "watch": "tsc -watch -p ./",
+    "test": "vitest run",
+    "check": "npm run compile && npm test",
+    "package": "npm run compile && vsce package --no-dependencies"
   },
   "devDependencies": {
     "@types/node": "^20.14.9",
     "@types/vscode": "^1.90.0",
-    "typescript": "^5.5.4"
+    "@vscode/vsce": "^3.9.2",
+    "typescript": "^5.5.4",
+    "vitest": "^4.1.9"
   }
 }

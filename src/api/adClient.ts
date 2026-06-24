@@ -6,57 +6,120 @@ export interface Ad {
   cpmInr: number;
 }
 
-/**
- * Fetches an ad for a user, returning null when the request cannot complete.
- */
-export async function fetchAd(userId: string): Promise<Ad | null> {
+export type InstallationRegistration = {
+  installationId: string;
+  token: string;
+};
+
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
+export function normalizeApiBaseUrl(value: string): string {
+  const url = new URL(value);
+  if (!['http:', 'https:'].includes(url.protocol)) {
+    throw new Error('Latency API URL must use HTTP or HTTPS');
+  }
+  return url.toString().replace(/\/$/, '');
+}
+
+async function requestJson<T>(
+  apiBaseUrl: string,
+  path: string,
+  init: RequestInit = {},
+  token?: string,
+): Promise<T> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 2000);
+  const timeout = setTimeout(() => controller.abort(), 5_000);
 
   try {
-    const response = await fetch(
-      `http://localhost:3001/api/ad?userId=${encodeURIComponent(userId)}`,
-      { method: "GET", signal: controller.signal },
-    );
-
+    const response = await fetch(`${normalizeApiBaseUrl(apiBaseUrl)}${path}`, {
+      ...init,
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...init.headers,
+      },
+    });
+    const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
-      return null;
+      throw new ApiError(
+        response.status,
+        typeof payload.error === 'string' ? payload.error : 'request_failed',
+      );
     }
-
-    return (await response.json()) as Ad;
-  } catch {
-    return null;
+    return payload as T;
   } finally {
     clearTimeout(timeout);
   }
 }
 
-/**
- * Reports a viewed ad impression without propagating request failures.
- */
-export async function reportImpression(
-  impressionId: string,
-  adId: string,
-  userId: string,
-  durationMs: number,
-): Promise<void> {
-  void fetch("http://localhost:3001/api/impression", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ impressionId, adId, userId, durationMs }),
-  }).catch(() => undefined);
+export function registerInstallation(
+  apiBaseUrl: string,
+): Promise<InstallationRegistration> {
+  return requestJson(apiBaseUrl, '/api/installations', { method: 'POST' });
 }
 
-/**
- * Reports an ad click without propagating request failures.
- */
-export async function reportClick(
+export async function fetchAd(
+  apiBaseUrl: string,
+  token: string,
+): Promise<Ad | null> {
+  try {
+    return await requestJson<Ad>(apiBaseUrl, '/api/ad', {}, token);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+}
+
+export async function reportImpression(
+  apiBaseUrl: string,
+  token: string,
   impressionId: string,
-  userId: string,
+  adId: string,
+  durationMs: number,
 ): Promise<void> {
-  void fetch("http://localhost:3001/api/click", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ impressionId, userId }),
-  }).catch(() => undefined);
+  await requestJson(
+    apiBaseUrl,
+    '/api/impression',
+    {
+      method: 'POST',
+      body: JSON.stringify({ impressionId, adId, durationMs }),
+    },
+    token,
+  );
+}
+
+export async function reportClick(
+  apiBaseUrl: string,
+  token: string,
+  impressionId: string,
+): Promise<void> {
+  await requestJson(
+    apiBaseUrl,
+    '/api/click',
+    { method: 'POST', body: JSON.stringify({ impressionId }) },
+    token,
+  );
+}
+
+export async function fetchWalletBalance(
+  apiBaseUrl: string,
+  token: string,
+): Promise<number> {
+  const wallet = await requestJson<{ balancePaise: number }>(
+    apiBaseUrl,
+    '/api/wallet',
+    {},
+    token,
+  );
+  return wallet.balancePaise;
 }
